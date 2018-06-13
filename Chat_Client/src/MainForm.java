@@ -8,12 +8,15 @@ import java.net.Socket;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.Vector;
+import javax.swing.DefaultListModel;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.ListModel;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -23,7 +26,7 @@ import javax.swing.JPanel;
 
 /**
  *
- * @author NguyenDang
+ * @author cau.lethien2
  */
 public class MainForm extends javax.swing.JFrame {
     String username;
@@ -34,6 +37,8 @@ public class MainForm extends javax.swing.JFrame {
     public boolean attachmentOpen = false;
     private boolean isConnected = false;
     private String mydownloadfolder = "D:\\";
+    DefaultListModel listModel;
+    JList  itemList;
 
     /**
      * Creates new form MainForm
@@ -42,6 +47,10 @@ public class MainForm extends javax.swing.JFrame {
         initComponents();
     }
         public void initFrame(String username){
+            listModel = new DefaultListModel();
+            itemList = new JList();
+            itemList.setModel((ListModel) listModel);
+            itemList.setCellRenderer(new IconLabelListRenderer());
         this.username = username;
         
         setTitle("Bạn đang được đăng nhập với tên: " + username);
@@ -50,14 +59,14 @@ public class MainForm extends javax.swing.JFrame {
     }
     
     public void connect(){
-        appendMessage(" Đang kết nối...", "Trạng thái", Color.GREEN, Color.GREEN);
+        appendMessage(" Đang kết nối...", "Trạng thái", Color.BLACK, Color.BLACK);
         try {
             socket = new Socket(host, port);
             dos = new DataOutputStream(socket.getOutputStream());
             // gửi username đang kết nối
             dos.writeUTF("CMD_JOIN "+ username);
-            appendMessage(" Đã kết nối", "Trạng thái", Color.GREEN, Color.GREEN);
-            appendMessage(" gửi tin nhắn bây giờ.!", "Trạng thái", Color.GREEN, Color.GREEN);
+            appendMessage(" Đã kết nối", "Trạng thái", Color.BLACK, Color.BLACK);
+            appendMessage(" gửi tin nhắn bây giờ.!", "Trạng thái", Color.BLACK, Color.BLACK);
             
             // Khởi động Client Thread 
             new Thread(new ClientThread(socket, this)).start();
@@ -128,8 +137,9 @@ public class MainForm extends javax.swing.JFrame {
     */
     public void showOnLineList(Vector list){
         try {
-            txtpane2.setEditable(true);
-            txtpane2.setContentType("text/html");
+            DefaultListModel listModel = new DefaultListModel();
+            //txtpane2.setEditable(true);
+            //txtpane2.setContentType("text/html");
             StringBuilder sb = new StringBuilder();
             Iterator it = list.iterator();
             sb.append("<html><table>");
@@ -141,9 +151,10 @@ public class MainForm extends javax.swing.JFrame {
                 System.out.println("Online: "+ e);
             }
             sb.append("</table></body></html>");
-            txtpane2.removeAll();
-            txtpane2.setText(sb.toString());
-            txtpane2.setEditable(false);
+            //txtpane2.removeAll();
+            //txtpane2.setText(sb.toString());
+            //txtpane2.setEditable(false);
+            listModel.addElement(sb.toString());
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
@@ -153,9 +164,14 @@ public class MainForm extends javax.swing.JFrame {
       ************************************  Hiển thị danh sách online  *********************************************
     */
     private void sampleOnlineList(Vector list){
-        txtpane2.setEditable(true);
-        txtpane2.removeAll();
-        txtpane2.setText("");
+        //txtpane2.setEditable(true);
+        //txtpane2.removeAll();
+        //txtpane2.setText("");
+        DefaultListModel listModel = new DefaultListModel();
+        //ListCellRenderer cellRenderer = new ListCellRenderer();
+        IconLabelListRenderer cellRenderer = new IconLabelListRenderer();
+        jList1.setCellRenderer(cellRenderer);
+        //listModel.SetRem
         Iterator i = list.iterator();
         while(i.hasNext()){
             Object e = i.next();
@@ -167,19 +183,23 @@ public class MainForm extends javax.swing.JFrame {
             Icon icon = new ImageIcon(this.getClass().getResource("/images/online.png"));
             JLabel label = new JLabel(icon);
             label.setText(" "+ e);
-            panel.add(label);
-            int len = txtpane2.getDocument().getLength();
-            txtpane2.setCaretPosition(len);
-            txtpane2.insertComponent(panel);
+            //panel.add(label);
+            listModel.addElement(new ListItem(label.getText().toString(),true));
+            jList1.setModel(listModel);
+            
+            
+            //int len = txtpane2.getDocument().getLength();
+            //txtpane2.setCaretPosition(len);
+            //txtpane2.insertComponent(panel);
             /*  Append Next Line   */
             sampleAppend();
         }
-        txtpane2.setEditable(false);
+        //txtpane2.setEditable(false);
     }
     private void sampleAppend(){
-        int len = txtpane2.getDocument().getLength();
-        txtpane2.setCaretPosition(len);
-        txtpane2.replaceSelection("\n");
+        //int len = txtpane2.getDocument().getLength();
+        //txtpane2.setCaretPosition(len);
+        //txtpane2.replaceSelection("\n");
     }
     /*
       ************************************  Show Online Sample  *********************************************
@@ -245,7 +265,7 @@ public class MainForm extends javax.swing.JFrame {
     public void openFolder(){
         JFileChooser chooser = new JFileChooser();
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        int open = chooser.showDialog(this, "Mở Thư Mục");
+        int open = chooser.showDialog(this, "Open folder");
         if(open == chooser.APPROVE_OPTION){
             mydownloadfolder = chooser.getSelectedFile().toString()+"\\";
         } else {
@@ -266,11 +286,11 @@ public class MainForm extends javax.swing.JFrame {
         jTextPane1 = new javax.swing.JTextPane();
         jTextField1 = new javax.swing.JTextField();
         jButton1 = new javax.swing.JButton();
-        jScrollPane3 = new javax.swing.JScrollPane();
-        txtpane2 = new javax.swing.JTextPane();
         jLabel1 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        jList1 = new javax.swing.JList<>();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu3 = new javax.swing.JMenu();
         sendFileMenu = new javax.swing.JMenuItem();
@@ -305,18 +325,13 @@ public class MainForm extends javax.swing.JFrame {
             }
         });
 
-        txtpane2.setEditable(false);
-        txtpane2.setFont(new java.awt.Font("Tahoma", 1, 9)); // NOI18N
-        txtpane2.setForeground(new java.awt.Color(120, 14, 3));
-        txtpane2.setAutoscrolls(false);
-        txtpane2.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
-        jScrollPane3.setViewportView(txtpane2);
-
         jLabel1.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         jLabel1.setText("Danh sách bạn bè");
 
         jLabel2.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
-        jLabel2.setText("Thiện Cầu");
+        jLabel2.setText("Chat all");
+
+        jScrollPane2.setViewportView(jList1);
 
         jMenu3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/config_tool_icon2_blue.png"))); // NOI18N
         jMenu3.setText("Công cụ");
@@ -367,30 +382,25 @@ public class MainForm extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 717, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(52, 52, 52)
+                        .addComponent(jLabel3))
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(52, 52, 52)
-                                .addComponent(jLabel3))
-                            .addGroup(layout.createSequentialGroup()
-                                .addContainerGap()
-                                .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 120, Short.MAX_VALUE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addContainerGap()
-                                .addComponent(jScrollPane3)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(0, 0, Short.MAX_VALUE)
-                                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 652, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(10, 10, 10)
-                                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addContainerGap()
+                        .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jScrollPane2)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jTextField1)
+                        .addGap(10, 10, 10)
+                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, 727, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
@@ -404,12 +414,12 @@ public class MainForm extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 417, Short.MAX_VALUE)
+                        .addComponent(jScrollPane1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, 43, Short.MAX_VALUE)
                             .addComponent(jTextField1)))
-                    .addComponent(jScrollPane3))
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 466, Short.MAX_VALUE))
                 .addContainerGap())
         );
 
@@ -427,7 +437,7 @@ public class MainForm extends javax.swing.JFrame {
                 s.setVisible(true);
                 attachmentOpen = true;
             } else {
-                JOptionPane.showMessageDialog(this, "Không thể thiết lập Chia sẻ File tại thời điểm này, xin vui lòng thử lại sau.!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Cannot share file.!", "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
     }//GEN-LAST:event_sendFileMenuActionPerformed
@@ -451,7 +461,7 @@ public class MainForm extends javax.swing.JFrame {
 
     private void LogoutMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_LogoutMenuActionPerformed
         // TODO add your handling code here:
-        int confirm = JOptionPane.showConfirmDialog(null, "Bạn có chắc đăng xuất không ?");
+        int confirm = JOptionPane.showConfirmDialog(null, "are you wamt to sign out ?");
         if(confirm == 0){
             try {
                 socket.close();
@@ -468,11 +478,11 @@ public class MainForm extends javax.swing.JFrame {
         // TODO add your handling code here:
         try {
             String content = username+" "+ evt.getActionCommand();
-            dos.writeUTF("CMD_CHATALL "+ content);
+            dos.writeUTF("[Chat all] "+ content);
             appendMyMessage(" "+evt.getActionCommand(), username);
             jTextField1.setText("");
         } catch (IOException e) {
-            appendMessage(" Không thể gửi tin nhắn đi bây giờ, không thể kết nối đến Máy Chủ tại thời điểm này, xin vui lòng thử lại sau hoặc khởi động lại ứng dụng này.!", "Lỗi", Color.RED, Color.RED);
+            appendMessage(" Lost server connection.!", "Error", Color.RED, Color.RED);
         }
     }//GEN-LAST:event_jTextField1ActionPerformed
 
@@ -480,11 +490,11 @@ public class MainForm extends javax.swing.JFrame {
         // TODO add your handling code here:
         try {
             String content = username+" "+ jTextField1.getText();
-            dos.writeUTF("CMD_CHATALL "+ content);
+            dos.writeUTF("[Chat all] "+ content);
             appendMyMessage(" "+jTextField1.getText(), username);
             jTextField1.setText("");
         } catch (IOException e) {
-            appendMessage(" Không thể gửi tin nhắn đi bây giờ, không thể kết nối đến Máy Chủ tại thời điểm này, xin vui lòng thử lại sau hoặc khởi động lại ứng dụng này.!", "Lỗi", Color.RED, Color.RED);
+            appendMessage(" Lost server connection.!", "Error", Color.RED, Color.RED);
         }
     }//GEN-LAST:event_jButton1ActionPerformed
 
@@ -529,15 +539,15 @@ public class MainForm extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JList<String> jList1;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenu jMenu3;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTextField jTextField1;
     private javax.swing.JTextPane jTextPane1;
     private javax.swing.JMenuItem sendFileMenu;
-    private javax.swing.JTextPane txtpane2;
     // End of variables declaration//GEN-END:variables
 }

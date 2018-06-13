@@ -16,7 +16,7 @@ import javax.swing.JOptionPane;
 
 /**
  *
- * @author NguyenDang
+ * @author cau.lethien2
  */
 
 public class SendFile extends javax.swing.JFrame {

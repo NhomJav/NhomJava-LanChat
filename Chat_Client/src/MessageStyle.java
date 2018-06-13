@@ -13,7 +13,7 @@ import javax.swing.text.StyleContext;
 
 /**
  *
- * @author NguyenDang
+ * @author cau.lethien2
  */
 public class MessageStyle {
     

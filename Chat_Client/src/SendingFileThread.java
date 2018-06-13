@@ -18,7 +18,7 @@ import javax.swing.JOptionPane;
 
 /**
  *
- * @author NguyenDang
+ * @author cau.lethien2
  */
 public class SendingFileThread implements Runnable {
     

@@ -15,7 +15,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 /**
  *
- * @author NguyenDang
+ * @author cau.lethien2
  */
 public enum SoundEffect {
     
