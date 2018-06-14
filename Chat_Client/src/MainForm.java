@@ -167,6 +167,7 @@ public class MainForm extends javax.swing.JFrame {
         //txtpane2.setEditable(true);
         //txtpane2.removeAll();
         //txtpane2.setText("");
+        jList1.removeAll();
         DefaultListModel listModel = new DefaultListModel();
         //ListCellRenderer cellRenderer = new ListCellRenderer();
         IconLabelListRenderer cellRenderer = new IconLabelListRenderer();
@@ -185,6 +186,7 @@ public class MainForm extends javax.swing.JFrame {
             label.setText(" "+ e);
             //panel.add(label);
             listModel.addElement(new ListItem(label.getText().toString(),true));
+           
             jList1.setModel(listModel);
             
             
@@ -478,7 +480,7 @@ public class MainForm extends javax.swing.JFrame {
         // TODO add your handling code here:
         try {
             String content = username+" "+ evt.getActionCommand();
-            dos.writeUTF("[Chat all] "+ content);
+            dos.writeUTF("CMD_CHATALL "+ content);
             appendMyMessage(" "+evt.getActionCommand(), username);
             jTextField1.setText("");
         } catch (IOException e) {
@@ -490,7 +492,7 @@ public class MainForm extends javax.swing.JFrame {
         // TODO add your handling code here:
         try {
             String content = username+" "+ jTextField1.getText();
-            dos.writeUTF("[Chat all] "+ content);
+            dos.writeUTF("CMD_CHATALL "+ content);
             appendMyMessage(" "+jTextField1.getText(), username);
             jTextField1.setText("");
         } catch (IOException e) {
